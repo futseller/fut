@@ -12,7 +12,7 @@ import json
 import random
 import re
 import time
-
+import os
 import pyotp
 import requests
 from python_anticaptcha import AnticaptchaClient, FunCaptchaTask, Proxy
@@ -201,7 +201,7 @@ def nations(timeout=timeout):
     return nations
 
 
-def leagues(year=2019, timeout=timeout):
+def leagues(year=2020, timeout=timeout):
     """Return all leagues in dict {id0: league0, id1: legaue1}.
 
     :params year: Year.
@@ -216,7 +216,7 @@ def leagues(year=2019, timeout=timeout):
     return leagues
 
 
-def teams(year=2019, timeout=timeout):
+def teams(year=2020, timeout=timeout):
     """Return all teams in dict {id0: team0, id1: team1}.
 
     :params year: Year.
@@ -231,7 +231,7 @@ def teams(year=2019, timeout=timeout):
     return teams
 
 
-def stadiums(year=2019, timeout=timeout):
+def stadiums(year=2020, timeout=timeout):
     """Return all stadium in dict {id0: stadium0, id1: stadium1}.
 
     :params year: Year.
@@ -273,7 +273,7 @@ def players(timeout=timeout):
     return players
 
 
-def playstyles(year=2019, timeout=timeout):
+def playstyles(year=2020, timeout=timeout):
     """Return all playstyles in dict {id0: playstyle0, id1: playstyle1}.
 
     :params year: Year.
@@ -306,7 +306,7 @@ class Core(object):
         else:
             self.stats = None
 
-        self.gameUrl = 'ut/game/fifa19'
+        self.gameUrl = 'ut/game/fifa21/v2'
 
         # db
         self._players = None
@@ -330,13 +330,13 @@ class Core(object):
                   'response_type': 'token',
                   'display': 'web2/login',
                   'locale': 'en_US',
-                  'redirect_uri': 'https://www.easports.com/fifa/ultimate-team/web-app/auth.html',
+                  'redirect_uri': 'https://www.ea.com/fifa/ultimate-team/web-app/auth.html',
                   'release_type': 'prod',
                   'scope': 'basic.identity offline signin'}
-        self.r.headers['Referer'] = 'https://www.easports.com/fifa/ultimate-team/web-app/'
+        self.r.headers['Referer'] = 'https://www.ea.com/fifa/ultimate-team/web-app/'
         rc = self.r.get('https://accounts.ea.com/connect/auth', params=params, timeout=self.timeout)
         # TODO: validate (captcha etc.)
-        if rc.url != 'https://www.easports.com/fifa/ultimate-team/web-app/auth.html':  # redirect target  # this check is probably not needed
+        if rc.url != 'https://www.ea.com/fifa/ultimate-team/web-app/auth.html':  # redirect target  # this check is probably not needed
             self.r.headers['Referer'] = rc.url
             # origin required?
             data = {'email': email,
@@ -401,8 +401,11 @@ class Core(object):
                                      timeout=self.timeout)
                     # rc = rc.text
 
+            #rc = re.match(
+            #    'https://www.ea.com/fifa/ultimate-team/web-app/auth.html#access_token=(.+?)&token_type=(.+?)&expires_in=[0-9]+',
+            #    rc.url)
             rc = re.match(
-                'https://www.easports.com/fifa/ultimate-team/web-app/auth.html#access_token=(.+?)&token_type=(.+?)&expires_in=[0-9]+',
+                'https://www.ea.com/fifa/ultimate-team/web-app/auth.html#access_token=(.+?)&token_type=(.+?)&expires_in=[0-9]+',
                 rc.url)
             self.access_token = rc.group(1)
             self.token_type = rc.group(2)
@@ -423,7 +426,7 @@ class Core(object):
         :params proxies: (optional) [dict] http/socks proxies in requests's format. http://docs.python-requests.org/en/master/user/advanced/#proxies
         """
         # TODO: split into smaller methods
-        # TODO: check first if login is needed (https://www.easports.com/fifa/api/isUserLoggedIn)
+        # TODO: check first if login is needed (https://www.ea.com/fifa/api/isUserLoggedIn)
         # TODO: get gamesku, url from shards !!
 
         self.emulate = emulate
@@ -459,7 +462,7 @@ class Core(object):
         else:
             self.r.headers = headers.copy()  # i'm chrome browser now ;-)
 
-        pre_game_sku = 'FFA19'  # TODO: maybe read from shards v2
+        pre_game_sku = 'FFA21'  # TODO: maybe read from shards v2
         if platform == 'pc':  # TODO: get this from shards
             game_sku = '%sPCC' % pre_game_sku
         elif platform == 'xbox':
@@ -477,7 +480,7 @@ class Core(object):
         #    return True  # no need to log in again
         # emulate
 
-        pre_sku = 'FUT19'  # TODO: maybe read from shards v2
+        pre_sku = 'FUT21'  # TODO: maybe read from shards v2
         if emulate == 'ios':
             sku = '%sIOS' % pre_sku
             clientVersion = 21
@@ -500,34 +503,40 @@ class Core(object):
         else:
             raise FutError(reason='Invalid emulate parameter. (Valid ones are and/ios).')  # pc/ps3/xbox/
         self.sku = sku  # TODO: use self.sku in all class
-        self.sku_b = 'FFT19'  # TODO: maybe read from shards v2
+        self.sku_b = 'FFT21'  # TODO: maybe read from shards v2
 
         # === launch futweb
         # TODO: maybe use custom locals, cause ea knows where u are coming from
         params = {'accessToken': self.access_token,
                   'client_id': client_id,
+                  'client_id': client_id,
                   'response_type': 'token',
                   'release_type': 'prod',
                   'display': 'web2/login',
                   'locale': 'en_US',
-                  'redirect_uri': 'https://www.easports.com/fifa/ultimate-team/web-app/auth.html',
+                  'redirect_uri': 'https://www.ea.com/fifa/ultimate-team/web-app/auth.html', #'redirect_uri': 'https://www.ea.com/fifa/ultimate-team/web-app/auth.html',
                   'scope': 'basic.identity offline signin'}
-        rc = self.r.get('https://accounts.ea.com/connect/auth', params=params)
+        r1 = self.r.get('https://accounts.ea.com/connect/auth', params=params)
+        #rc = re.match(
+        #    'https://www.ea.com/fifa/ultimate-team/web-app/auth.html#access_token=(.+?)&token_type=(.+?)&expires_in=[0-9]+',
+        #    rc.url)
         rc = re.match(
-            'https://www.easports.com/fifa/ultimate-team/web-app/auth.html#access_token=(.+?)&token_type=(.+?)&expires_in=[0-9]+',
-            rc.url)
+            'https://www.ea.com/fifa/ultimate-team/web-app/auth.html#access_token=(.+?)&token_type=(.+?)&expires_in=[0-9]+',
+            r1.url)
         if not rc:
             # TODO: raise better error, maybe parse rc
             raise FutError('invalid login, try to delete cookie and token.txt')
         self.access_token = rc.group(1)
         self.token_type = rc.group(2)
 
-        # self.r.headers['Referer'] = 'https://www.easports.com/fifa/ultimate-team/web-app/auth.html'
-        rc = self.r.get('https://www.easports.com/fifa/ultimate-team/web-app/', timeout=self.timeout).text
+        # self.r.headers['Referer'] = 'https://www.ea.com/fifa/ultimate-team/web-app/auth.html'
+        #rc = self.r.get('https://www.ea.com/fifa/ultimate-team/web-app/', timeout=self.timeout).text
+        rc = self.r.get('https://www.ea.com/fifa/ultimate-team/web-app/', timeout=self.timeout).text
         # year = re.search('fut_year = "([0-9]{4}])"', rc).group(1)  # use this to construct urls, sku etc.
         # guid = re.search('fut_guid = "(.+?)"', rc).group(1)
         # TODO: config
-        self.r.headers['Referer'] = 'https://www.easports.com/fifa/ultimate-team/web-app/'
+        #self.r.headers['Referer'] = 'https://www.ea.com/fifa/ultimate-team/web-app/'
+        self.r.headers['Referer'] = 'https://www.ea.com/fifa/ultimate-team/web-app/'
         self.r.headers['Accept'] = 'application/json'
         self.r.headers['Authorization'] = '%s %s' % (self.token_type, self.access_token)
         rc = self.r.get('https://gateway.ea.com/proxy/identity/pids/me').json()  # TODO: validate response
@@ -550,20 +559,41 @@ class Core(object):
         # TODO: parse this and use above
         rc = self.r.get('https://%s/ut/shards/v2' % auth_url).json()
         self.fut_host = {
-            'pc': 'utas.external.s2.fut.ea.com:443',
-            'ps3': 'utas.external.s2.fut.ea.com:443',
-            'ps4': 'utas.external.s2.fut.ea.com:443',
-            'xbox': 'utas.external.s3.fut.ea.com:443',
+            'pc': 'utas.external.s2.fut.ea.com',
+            'ps3': 'utas.external.s2.fut.ea.com',
+            'ps4': 'utas.external.s2.fut.ea.com', #'ps4': 'utas.external.s2.fut.ea.com:443',
+            'xbox': 'utas.external.s3.fut.ea.com',#'xbox': 'utas.external.s3.fut.ea.com:443',
             # 'ios': 'utas.external.fut.ea.com:443',
             # 'and': 'utas.external.fut.ea.com:443'
         }
         self.fut_host = self.fut_host[platform]
-
+        
+        rc = self.r.get('https://accounts.ea.com/connect/auth?client_id=FOS-SERVER&redirect_uri=nucleus:rest&response_type=code&access_token='+str(self.access_token)+'&release_type=prod&client_sequence=shard2')
+        resp = rc.json()
+        auth_code = resp['code']
         # personas
+        #https://utas.external.s3.fut.ea.com/ut/game/fifa21/v2/user/accountinfo?filterConsoleLogin=true&sku=FUT21WEB&returningUserGameYear=2020 
         data = {'filterConsoleLogin': 'true',
                 'sku': self.sku,
-                'returningUserGameYear': '2018'}  # allways year-1? or maybe current release year
-        rc = self.r.get('https://%s/%s/user/accountinfo' % (self.fut_host, self.gameUrl), params=data).json()
+                'returningUserGameYear': '2020'}  # allways year-1? or maybe current release year
+
+
+
+        self.r.headers['Accept'] = '*/*'
+        self.r.headers['Content-Type'] = 'application/json'
+        self.r.headers['Connection'] = 'keep-alive'
+        self.r.headers['Host'] = 'utas.external.s3.fut.ea.com'
+        self.r.headers['Nucleus-Redirect-Url'] = 'nucleus:rest'
+        self.r.headers['Nucleus-Access-Code'] = auth_code
+        self.r.headers['Origin'] = 'https://www.ea.com'
+        self.r.headers['Sec-Fetch-Dest'] = 'empty'
+        self.r.headers['Sec-Fetch-Mode'] = 'cors'
+        self.r.headers['Sec-Fetch-Site'] = 'same-site'
+
+        
+        
+        r1 = self.r.get('https://%s/%s/user/accountinfo' % (self.fut_host, self.gameUrl), params=data)
+        rc = r1.json()
         # pick persona (first valid for given game_sku)
         personas = rc['userAccountInfo']['personas']
         for p in personas:
@@ -578,35 +608,51 @@ class Core(object):
             raise FutError(reason='Error during login process (no persona found).')
 
         # authorization
+        #print('Break 1')
         # TODO?: with proper saved session we might start here
         del self.r.headers['Easw-Session-Data-Nucleus-Id']
-        self.r.headers['Origin'] = 'http://www.easports.com'
+        self.r.headers['Origin'] = 'http://www.ea.com'
         params = {'client_id': 'FOS-SERVER',  # i've seen in some js/json response but cannot find now
                   'redirect_uri': 'nucleus:rest',
                   'response_type': 'code',
                   'access_token': self.access_token,
-                  'release_type': 'prod'}
+                  'release_type': 'prod',
+                  'client_sequence': 'ut-auth'}
         rc = self.r.get('https://accounts.ea.com/connect/auth', params=params).json()
         auth_code = rc['code']
 
+        #generate DS
+        path = os.path.dirname(os.path.abspath(__file__))
+        dsCMD = 'cd ' + path + ' && node ds.js ' + auth_code + ' ' + game_sku + ' ' + self.access_token
+        ds = os.popen(dsCMD).read()
+        
+        #postAuth
         self.r.headers['Content-Type'] = 'application/json'
         data = {'isReadOnly': 'false',
                 'sku': self.sku,
                 'clientVersion': clientVersion,
+                'ds': ds, 
                 'nucleusPersonaId': self.persona_id,
                 'gameSku': game_sku,
                 'locale': 'en-US',
                 'method': 'authcode',
                 'priorityLevel': 4,
                 'identification': {'authCode': auth_code,
-                                   'redirectUrl': 'nucleus:rest'}}
+                                   'redirectUrl': 'nucleus:rest'}
+                }
+        
+
+        print(data)
+        #print('Break 2')
         rc = self.r.post('https://%s/ut/auth' % self.fut_host, data=json.dumps(data),
                          timeout=self.timeout)
         if rc.status_code == 401:  # and rc.text == 'multiple session'
             raise FutError('multiple session')
         if rc.status_code == 500:
             raise InternalServerError('Servers are probably temporary down.')
+        
         rc = rc.json()
+        #print (rc)
         if rc.get('reason') == 'multiple session':
             raise MultipleSession
         elif rc.get('reason') == 'max sessions':
@@ -615,90 +661,127 @@ class Core(object):
             raise DoLoginFail
         elif rc.get('reason'):
             raise UnknownError(rc.__str__())
+            
+        self.phishingToken = rc['phishingToken']
         self.r.headers['X-UT-SID'] = self.sid = rc['sid']
 
         # validate (secret question)
         self.r.headers['Easw-Session-Data-Nucleus-Id'] = self.nucleus_id
-        rc = self.r.get('https://%s/%s/phishing/question' % (self.fut_host, self.gameUrl),
-                        timeout=self.timeout).json()
-        if rc.get('code') == '458':
-            if anticaptcha_client_key:
-                if not proxies:
-                    raise FutError('FunCaptcha requires a proxy. Add proxies param.')
-                self.logger.debug('Solving FunCaptcha...')
-                anticaptcha = AnticaptchaClient(anticaptcha_client_key)
-                attempt = 0
-                while True:
-                    attempt += 1
-                    if attempt > 10:
-                        raise FutError('Can\'t send captcha.')
-                    try:
-                        self.logger.debug('Attempt #{}'.format(attempt))
-                        task = FunCaptchaTask(
-                            'https://www.easports.com',
-                            fun_captcha_public_key,
-                            proxy=Proxy.parse_url(proxies.get('http') or proxies.get('https')),
-                            user_agent=self.r.headers['User-Agent']
-                        )
-                        job = anticaptcha.createTask(task)
-                        job.join()
-                        fun_captcha_token = job.get_token_response()
-                        self.logger.debug('FunCaptcha solved: {}'.format(fun_captcha_token))
-                        self.__request__('POST', 'captcha/fun/validate', data=json.dumps({
-                            'funCaptchaToken': fun_captcha_token,
-                        }))
-                        rc = self.r.get('https://%s/%s/phishing/question' % (self.fut_host, self.gameUrl), timeout=self.timeout).json()
-                        break
-                    except AnticaptchaException as e:
-                        if e.error_code in ['ERROR_PROXY_CONNECT_REFUSED', 'ERROR_PROXY_CONNECT_TIMEOUT',
-                                            'ERROR_PROXY_READ_TIMEOUT', 'ERROR_PROXY_BANNED']:
-                            self.logger.exception('AnticaptchaException ' + e.error_code)
-                            time.sleep(10)
-                            continue
-                        else:
-                            raise
-
-            else:
-                raise Captcha(code=rc.get('code'), string=rc.get('string'), reason=rc.get('reason'))
-        # TODO: I don't know if it will be turned on again... We should check
-        if rc['string'] != 'Already answered question' and rc['string'] != 'Feature Disabled':
-            params = {'answer': secret_answer_hash}
-            rc = self.r.post('https://%s/%s/phishing/validate' % (self.fut_host, self.gameUrl), params=params,
-                             timeout=self.timeout).json()
-            if rc['string'] == 'Phishing feature is disabled':
-                print(rc['string'])
-                raise FutError('phishing feature disabled at the moment')
-            elif rc['string'] != 'OK':  # we've got an error
-                # Known reasons:
-                # * invalid secret answer
-                # * No remaining attempt
-                print(rc['reason'])
-                raise FutError(reason='Error during login process (%s).' % (rc['reason']))
-            self.r.headers['X-UT-PHISHING-TOKEN'] = self.token = rc['token']
-            # ask again for question to refresh(?) token, i'm just doing what webapp is doing
-            rc = self.r.get('https://%s/%s/phishing/question' % (self.fut_host, self.gameUrl), timeout=self.timeout).json()
-
-            # TODO: maybe needs to set later. But in current webapp the phishing token is not needed
-            # for requests after login
-            self.r.headers['X-UT-PHISHING-TOKEN'] = self.token = rc['token']
-
+        #print('Break 3')
+        
+# =============================================================================
+#         print('https://%s/%s/phishing/question' % (self.fut_host, self.gameUrl))
+#         r1 = self.r.get('https://%s/%s/phishing/question' % (self.fut_host, self.gameUrl),
+#                         timeout=self.timeout)
+#         
+#         print(r1)
+#         rc = r1.json()
+#         
+#         print('Break 4')
+#         if rc.get('code') == '458':
+#             if anticaptcha_client_key:
+#                 if not proxies:
+#                     raise FutError('FunCaptcha requires a proxy. Add proxies param.')
+#                 self.logger.debug('Solving FunCaptcha...')
+#                 anticaptcha = AnticaptchaClient(anticaptcha_client_key)
+#                 attempt = 0
+#                 while True:
+#                     attempt += 1
+#                     if attempt > 10:
+#                         raise FutError('Can\'t send captcha.')
+#                     try:
+#                         self.logger.debug('Attempt #{}'.format(attempt))
+#                         task = FunCaptchaTask(
+#                             'https://www.ea.com',
+#                             fun_captcha_public_key,
+#                             proxy=Proxy.parse_url(proxies.get('http') or proxies.get('https')),
+#                             user_agent=self.r.headers['User-Agent']
+#                         )
+#                         job = anticaptcha.createTask(task)
+#                         job.join()
+#                         fun_captcha_token = job.get_token_response()
+#                         self.logger.debug('FunCaptcha solved: {}'.format(fun_captcha_token))
+#                         self.__request__('POST', 'captcha/fun/validate', data=json.dumps({
+#                             'funCaptchaToken': fun_captcha_token,
+#                         }))
+#                         rc = self.r.get('https://%s/%s/phishing/question' % (self.fut_host, self.gameUrl), timeout=self.timeout).json()
+#                         break
+#                     except AnticaptchaException as e:
+#                         if e.error_code in ['ERROR_PROXY_CONNECT_REFUSED', 'ERROR_PROXY_CONNECT_TIMEOUT',
+#                                             'ERROR_PROXY_READ_TIMEOUT', 'ERROR_PROXY_BANNED']:
+#                             self.logger.exception('AnticaptchaException ' + e.error_code)
+#                             time.sleep(10)
+#                             continue
+#                         else:
+#                             raise
+# 
+#             else:
+#                 raise Captcha(code=rc.get('code'), string=rc.get('string'), reason=rc.get('reason'))
+#         # TODO: I don't know if it will be turned on again... We should check
+#         if rc['string'] != 'Already answered question' and rc['string'] != 'Feature Disabled':
+#             params = {'answer': secret_answer_hash}
+#             rc = self.r.post('https://%s/%s/phishing/validate' % (self.fut_host, self.gameUrl), params=params,
+#                              timeout=self.timeout).json()
+#             if rc['string'] == 'Phishing feature is disabled':
+#                 print(rc['string'])
+#                 raise FutError('phishing feature disabled at the moment')
+#             elif rc['string'] != 'OK':  # we've got an error
+#                 # Known reasons:
+#                 # * invalid secret answer
+#                 # * No remaining attempt
+#                 print(rc['reason'])
+#                 raise FutError(reason='Error during login process (%s).' % (rc['reason']))
+#             self.r.headers['X-UT-PHISHING-TOKEN'] = self.token = rc['token']
+#             # ask again for question to refresh(?) token, i'm just doing what webapp is doing
+#             rc = self.r.get('https://%s/%s/phishing/question' % (self.fut_host, self.gameUrl), timeout=self.timeout).json()
+# 
+#             # TODO: maybe needs to set later. But in current webapp the phishing token is not needed
+#             # for requests after login
+#             self.r.headers['X-UT-PHISHING-TOKEN'] = self.token = rc['token']
+# =============================================================================
+            
+        self.r.headers['X-UT-PHISHING-TOKEN'] = self.phishingToken
         # init pin
         self.pin = Pin(sid=self.sid, nucleus_id=self.nucleus_id, persona_id=self.persona_id, dob=self.dob[:-3],
                        platform=platform)
-        events = [self.pin.event('login', status='success')]
-        self.pin.send(events)
+        #events = [self.pin.event('login', status='success')]
+        #self.pin.send(events)
 
         # get basic user info
         # TODO: parse usermassinfo and change _usermassinfo to userinfo
         # TODO?: usermassinfo as separate method && ability to refresh piles etc.
-        self._usermassinfo = self.r.get('https://%s/%s/usermassinfo' % (self.fut_host, self.gameUrl), timeout=self.timeout).json()
+        #print('Break 4')
+        
+        old_headers = self.r.headers
+        massinfo_headers = {
+                'Accept': '*/*',
+                'Accept-Encoding': 'gzip, deflate, br',
+                'Accept-Language': 'en-US,en;q=0.9',
+                'Connection': 'keep-alive',
+                'Content-Type': 'application/json',
+                'Host': 'utas.external.s3.fut.ea.com',
+                'Origin': 'https://www.ea.com',
+                'Referer': 'https://www.ea.com/fifa/ultimate-team/web-app/',
+                'Sec-Fetch-Dest': 'empty',
+                'Sec-Fetch-Mode': 'cors',
+                'Sec-Fetch-Site': 'same-site',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36',
+                'X-UT-SID': self.sid
+            }
+        
+        self.r.headers = massinfo_headers
+        resp = self.r.get('https://%s/%s/usermassinfo' % (self.fut_host, self.gameUrl.replace('/v2','')), timeout=self.timeout)
+        
+        self._usermassinfo = resp.json()
         if self._usermassinfo['userInfo']['feature']['trade'] == 0:
             raise FutError(reason='Transfer market is probably disabled on this account.')  # if tradingEnabled = 0
-
+            
+        #print('Break 5')
         # settings, not used, not necesary, just to make it less detectable # TODO: repeat every 10 minutes
         self.base_time = int(time.time() * 1000)
         self._ = self.base_time
-        self.r.get('https://%s/%s/settings' % (self.fut_host, self.gameUrl), params={'_': self._}, timeout=self.timeout)
+        #https://utas.external.s3.fut.ea.com/ut/game/fifa21/settings
+        self.r.get('https://%s/%s/settings' % (self.fut_host, self.gameUrl.replace('/v2','')), params={'_': self._}, timeout=self.timeout)
 
         # size of piles
         piles = self.pileSize()
@@ -718,8 +801,8 @@ class Core(object):
         self.saveSession()
 
         # pinEvents - home screen
-        events = [self.pin.event('page_view', 'Hub - Home')]
-        self.pin.send(events)
+        #events = [self.pin.event('page_view', 'Hub - Home')]
+        #self.pin.send(events)
 
         # pinEvents - boot_end  # boot_end is connected with "connection" and pops only after browser window loses focus
         # events = [self.pin.event('connection'),
@@ -865,14 +948,14 @@ class Core(object):
 
         :params save: False if You don't want to save cookies.
         """
-        # self.r.get('https://www.easports.com/signout', params={'ct': self._})
+        # self.r.get('https://www.ea.com/signout', params={'ct': self._})
         # self.r.get('https://accounts.ea.com/connect/clearsid', params={'ct': self._})
         # self.r.get('https://beta.www.origin.com/views/logout.html', params={'ct': self._})
         # self.r.get('https://help.ea.com/community/logout/', params={'ct': self._})
         self.r.delete('https://%s/ut/auth' % self.fut_host, timeout=self.timeout)
         if save:
             self.saveSession()
-        # needed? https://accounts.ea.com/connect/logout?client_id=FIFA-18-WEBCLIENT&redirect_uri=https://www.easports.com/fifa/ultimate-team/web-app/auth.html
+        # needed? https://accounts.ea.com/connect/logout?client_id=FIFA-18-WEBCLIENT&redirect_uri=https://www.ea.com/fifa/ultimate-team/web-app/auth.html
         return True
 
     @property
@@ -1467,9 +1550,12 @@ class Core(object):
 
     def pileSize(self):
         """Return size of tradepile and watchlist."""
-        rc = self._usermassinfo['pileSizeClientData']['entries']
-        return {'tradepile': rc[0]['value'],
-                'watchlist': rc[2]['value']}
+        #print (self._usermassinfo)
+        #rc = self._usermassinfo['pileSizeClientData']['entries']
+        #return {'tradepile': rc[0]['value'],
+        #       'watchlist': rc[2]['value']}
+        return {'tradepile': 0,
+                'watchlist': 0}
 
     #
     # def stats(self):
