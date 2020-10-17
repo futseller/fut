@@ -626,6 +626,19 @@ class Core(object):
         dsCMD = 'cd ' + path + ' && node ds.js ' + auth_code + ' ' + game_sku + ' ' + self.access_token
         ds = os.popen(dsCMD).read()
         
+# =============================================================================
+#         path = 'C:/ProgramData/Anaconda3/lib/site-packages/fut'
+#         auth_code = 'QUOxAGM17G6ZL3qdcbmRyWH5a-e6rB6dSp1gXqIJAQ'
+#         game_sku = 'FFA21XBO'
+#         access_token = 'eyJraWQiOiIxMjg5NjY3MC01MzJkLTRlZDktYmZmMS0wNTZkMWViZmFiNGIiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJhY2NvdW50cy5lYS5jb20iLCJqdGkiOiJTa0V4T2pNdU1Eb3hMakE2TURRMU4yUXdPVGd0WkRkaE5pMDBNakJoTFdGak0yTXROREUwTkRVMk9UbGlNVEJpIiwiYXpwIjoiRklGQTIxX0pTX1dFQl9BUFAiLCJpYXQiOjE2MDI1MTk5OTEsImV4cCI6MTYwMjUzNDM5MSwidmVyIjoxLCJuZXh1cyI6eyJjbGkiOiJGSUZBMjFfSlNfV0VCX0FQUCIsInNjbyI6Im9mZmxpbmUgc2VjdXJpdHkudHdvZmFjdG9yIHNlY3VyaXR5LmNoYWxsZW5nZSBzaWduaW4gYmFzaWMuaWRlbnRpdHkgYmFzaWMucGVyc29uYSBiYXNpYy5lbnRpdGxlbWVudCIsInBpZCI6IjEwMDgyNjY5MTM2NjciLCJwdHkiOiJOVUNMRVVTIiwidWlkIjoiMTAwODI2NjkxMzY2NyIsInN0cHMiOiJPRkYiLCJjbnR5IjoiMSIsImF1c3JjIjoiMzE0NjU0IiwiZW5jIjoiMHJ6WGg1dE1GMjFROEUxQmdQdlZLUE5SVlp4dG1iMytoTUExNksrTGJ2UDdYSGthYlBFL3BTbGFLb0RVOVFDcEoyMXpxYUtGRWpzbDJkMFFJZkRKZFA2NHhqK29kb01IRk5HdXlIcXh1aG9aRk5iQkhKaU10UEZhekM1MUZkL3hBaVAvc3cxZXh6R1FxYUpFMTUrUzIwT3ZMMjFidm5xY2owclQ3UkJrWmE1VlpyeU1hK2QwbkFHVTh5U3NuK0tjZmIxSlVYVGRGZHNNcGc1UkcySG5NSXFYSmZ4bENZQkpMNGxlNVhoalJrRjNYWml5ZHZjcFV6a0xWUXl5N3hwNW41RjVFYjhZT3BjNkNLNzEyWmZFTTBFdStpa2ppcUdRdHNVWExPUFZiRVFyeWxLT0ZYTndKWUE1YzQrRzdWQU4wbllZZm9QMkJ6RjB1YkFSd0ZmbFJ6RzFLY3B1dGhJbEgxSnBxcFRLSU1Zdk5qVWZWQ3pqSDBFaWN4cjloM1lnZVZ6TCtMbmF5LzN4QW5Xb0NqRWhibFpHanZ2WWFyQmFxN0RnM29md1FxZzlJNk5OQmZKRjN2VFFmZndRUUdZYmNNNE5jY2I5dDliWnJqSlEvS0FrUXZrRkZ0WjJjMjlyYnZPNWZXQVNXcDZLcTZnRitWTjlaMEYxY3hOdWoyMnNpbmtobU9oSmdUQTEyRUJtdEVCd0drTnc2SlBKTDRxaThPTFc1QVBES1FLcjd1VDc4MEhkMWNHVzVKRmVOVzdpVTBQK2JDRTh5TTNMNy9zcW56TGZ2YXhpL2xXSVRUSmNIbVhnT0dKWFVKVkFTN3kvQ09CSmxHaW5Qd0tnOXV2SkdzMXBmcTBXajBFUEpXZ0Mrbnp0cGtMMWsrMVY1OWFqbFYwR1ZlWXZ2dEFIVHBqVXRCTGpGaXA2OUhCYTVSdUZsVy9jMWFJWG1MOTBBZXhVM3BKczdaRHF3c21UVy9hNWt3VVVUQ24rTzhSQUNORE1JeXQzOTUvUGQzR0VsVHdXL3FNa0d2Mm15K2NZeURYR0ZZNXY2aHM1Q3BBUVQ5K0JKTm5XcjNnN0k5QTNBQVRNcXZya2hLUVh3VDZ4WEErUXpQYldpS1c2ekw3WVcwWHM4WDVldE5mM2pQMDFQVmttak5URUZCbjJaWFZOU0U3cEpUeWYxcTNIaFFiWFpRem9sbUgzMlF4WmltYi9zTnFKWG9BaktxK0VrWWNVQ3pkWVFORnVabm50bVpOdU9iYmUrRThjRmxmZlRhdFdhM21pd3ZJSjRCQkdMWW1TOGtySjlkS2NKc3JoTVhZdFpmUU9DSnJidG9UeklOQ3lZbmo1a2ViWFQ0Q2lFTUpMUmZCSVVSeUZDUUlIWFFJL2dBZkkwdHdzdFBOcjNQRXRJQWxOeTNGaFlCTVhDUGlYK1pLb2JhU1hPU1F2N2ZBcFZsTXhSMUtxMThtWit2RXFUTlg4dTBFZnVxYVVJZzJ3eXFFNm9pM1RacXBNM0NvPSJ9fQ.dipa2qU40Va7sVgo2I3RtjXfggR08pZuyLWDV_gQ_B-8yH9j4M_LdTmPPO_ytG9jqpAUNMAqMf2rIVcM0kOURn_-OT5Bv6wy_OpmpYt9NK8GiaKyVKJgd6jsAIZ7nqT05SSRHiv1myKKcWQfeURINKypUDYjktAg3J128_T8lxDhHCqAeKIYy0EktjoQIh2suGvW71eCUWiTbMIUs2WI_C781qr5kKi0OjvaIiWxYax3ibHpuOq2LSIOPkNRZyLPDLOH1Nn-BBJcyPaV7ZvBe6D24G9j7bEu-n21CKcL1cIDEtxv_vNAi-tc8hzeQ52tP3i6jfnxnz4pTTUhcfo_yQ'        
+#         access_token = 'QVQxOjMuMDozLjA6MjQwOlYyTUFJbWxmTkx5M0FIY3k4TUo3MndiVlhQRUo0U2FTdVZQOjEzNjY3OnBmMmxx'
+#         dsCMD = 'cd ' + path + ' && node ds.js ' + auth_code + ' ' + game_sku + ' ' + access_token
+#         #print(dsCMD)
+#         ds = os.popen(dsCMD).read()
+#         print(ds)
+# =============================================================================
+        
+        
         #postAuth
         self.r.headers['Content-Type'] = 'application/json'
         data = {'isReadOnly': 'false',
@@ -642,7 +655,7 @@ class Core(object):
                 }
         
 
-        print(data)
+        print('Auth Data:',data)
         #print('Break 2')
         rc = self.r.post('https://%s/ut/auth' % self.fut_host, data=json.dumps(data),
                          timeout=self.timeout)
@@ -663,6 +676,7 @@ class Core(object):
             raise UnknownError(rc.__str__())
             
         self.phishingToken = rc['phishingToken']
+        print('Phishing Token:',self.phishingToken)
         self.r.headers['X-UT-SID'] = self.sid = rc['sid']
 
         # validate (secret question)
@@ -773,6 +787,7 @@ class Core(object):
         resp = self.r.get('https://%s/%s/usermassinfo' % (self.fut_host, self.gameUrl.replace('/v2','')), timeout=self.timeout)
         
         self._usermassinfo = resp.json()
+        #print(resp.json())
         if self._usermassinfo['userInfo']['feature']['trade'] == 0:
             raise FutError(reason='Transfer market is probably disabled on this account.')  # if tradingEnabled = 0
             
@@ -818,7 +833,7 @@ class Core(object):
     #        return self.r.get(self.urls['shards'], params={'_': int(time.time()*1000)}, timeout=self.timeout).json()
     #        # self.r.headers['X-UT-Route'] = self.urls['fut_pc']
 
-    def __request__(self, method, url, data=None, params=None, fast=False):
+    def __request__(self, method, url, data=None, params=None, fast=False, v2=False):
         """Prepare headers and sends request. Returns response as a json object.
 
         :params method: Rest method.
@@ -831,6 +846,8 @@ class Core(object):
         data = data or {}
         params = params or {}
         url = 'https://%s/%s/%s' % (self.fut_host, self.gameUrl, url)
+        if not v2: url = url.replace('v2/','')
+        print(url)
 
         self.logger.debug("request: {0} data={1};  params={2}".format(url, data, params))
         # if method.upper() == 'GET':
