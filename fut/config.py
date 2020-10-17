@@ -1,13 +1,13 @@
 # chrome 58 @ win10
 headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.92 Safari/537.36',
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-    'Accept-Encoding': 'gzip,deflate,sdch, br',
-    'Accept-Language': 'en-US,en;q=0.8',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36',
+    'Accept': '*/*',
+    'Accept-Encoding': 'gzip, deflate',
+    'Accept-Language': 'en-US,en;q=0.9',
     # 'Accept-Charset': 'utf-8, iso-8859-1, utf-16, *;q=0.1',
     # 'Connection': 'keep-alive',
     # 'Keep-Alive': '300',
-    'DNT': '1',
+    #'DNT': '1',
 }
 
 # android 4.2 @ nexus
