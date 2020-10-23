@@ -28,7 +28,7 @@ class Pin(object):
         self.persona_id = persona_id
         self.dob = dob
         self.platform = platform
-        rc = requests.get('https://www.easports.com/fifa/ultimate-team/web-app/js/compiled_1.js').text
+        rc = requests.get('https://www.ea.com/fifa/ultimate-team/web-app/js/compiled_1.js').text
 
         self.taxv = re.search('taxv:"(.+?)"', rc).group(1)
         self.tidt = re.search('tidt:"(.+?)"', rc).group(1)
