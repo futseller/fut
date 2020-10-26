@@ -744,7 +744,7 @@ function generateDS(auth_code, sku, auth_token)
     }();
 
     let authToken = auth_token
-    let futSku = 'FUT21WEB'
+    let futSku = 'FUT20WEB'
     let payload = '{"authCode":"'+ auth_code +'"}, {"sku":"'+ sku +'"}, {"custom":""}'
     var key = "JzGpKhsbYC0GPpan9EfNYxWgTQJ9YZEZl7zd8Rv2CdiiYUKjk0c3q6k4qnUoxolW";
 

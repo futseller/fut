@@ -28,23 +28,24 @@ class Pin(object):
         self.persona_id = persona_id
         self.dob = dob
         self.platform = platform
-        rc = requests.get('https://www.easports.com/fifa/ultimate-team/web-app/js/compiled_1.js').text
+        rc = requests.get(
+            'https://www.ea.com/fifa/ultimate-team/web-app/js/compiled_1.js').text
+        self.taxv = '1.1'  # re.search('taxv:"(.+?)"', rc).group(1)
+        self.tidt = 'easku'  # re.search('tidt:"(.+?)"', rc).group(1)
 
-        self.taxv = re.search('taxv:"(.+?)"', rc).group(1)
-        self.tidt = re.search('tidt:"(.+?)"', rc).group(1)
-
-        self.sku = sku or re.search('enums.SKU.FUT="(.+?)"', rc).group(1)
-        self.rel = release_type
-        self.gid = re.search('gid:([0-9]+?)', rc).group(1)
+        # sku or re.search('enums.SKU.FUT="(.+?)"', rc).group(1)
+        self.sku = 'FUT21WEB'
+        self.rel = 'prod'  # release_type
+        self.gid = '0'  # re.search('gid:([0-9]+?)', rc).group(1)
         self.plat = 'web'  # where is it? WEB:?
-        self.et = re.search('et:"(.+?)"', rc).group(1)
-        self.pidt = re.search('pidt:"(.+?)"', rc).group(1)
-        self.v = re.search('APP_VERSION="([0-9\.]+)"', rc).group(1)
+        self.et = 'client'  # re.search('et:"(.+?)"', rc).group(1)
+        self.pidt = 'persona'  # re.search('pidt:"(.+?)"', rc).group(1)
+        self.v = '21.1.0'  # re.search('APP_VERSION="([0-9\.]+)"', rc).group(1)
 
         self.r = requests.Session()
         self.r.headers = headers
-        self.r.headers['Origin'] = 'https://www.easports.com'
-        self.r.headers['Referer'] = 'https://www.easports.com/fifa/ultimate-team/web-app/'
+        self.r.headers['Origin'] = 'https://www.ea.com'
+        self.r.headers['Referer'] = 'https://www.ea.com/fifa/ultimate-team/web-app/'
         self.r.headers['x-ea-game-id'] = self.sku
         self.r.headers['x-ea-game-id-type'] = self.tidt
         self.r.headers['x-ea-taxv'] = self.taxv
@@ -125,5 +126,6 @@ class Pin(object):
             self.r.options(pin_url)
         rc = self.r.post(pin_url, data=json.dumps(data)).json()
         if rc['status'] != 'ok':
-            raise FutError('PinEvent is NOT OK, probably they changed something.')
+            raise FutError(
+                'PinEvent is NOT OK, probably they changed something.')
         return True
